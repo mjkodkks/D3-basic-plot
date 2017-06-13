@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <title>DKKs Plot</title>
+</head>
+<style> /* set the CSS */
+
+.line {
+  fill: none;
+  stroke: red;
+  stroke-width: 0.5px;
+}
+.line2 {
+  fill: none;
+  stroke: #000000;
+  stroke-width: 0.5px;
+}
+
+.line2 {
+  fill: none;
+  stroke: green;
+  stroke-width: 0.5px;
+}
+
+</style>
+<body>
+
+<!-- load the d3.js library -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 50, right: 20, bottom: 30, left: 50},
+    width = 1100 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+// parse the date / timeA
+
+d3.select("body")
+  .transition()
+    .duration(1000)
+    .style("background-color", "#e2eef6");
+
+// set the ranges
+var x = d3.scaleLinear().range([0, width]);
+var y = d3.scaleLinear().domain([-1.2e2,2e2]).range([height, 0]);
+
+// define the line
+var valueline = d3.line()
+    .x(function(d) { return x(d.timeA); })
+    .y(function(d) { return y(d.gX); });
+
+// define the line 2
+var valueline2 = d3.line()
+    .x(function(d) { return x(d.timeA); })
+    .y(function(d) { return y(d.gY); });
+
+// define the line 3
+var valueline3 = d3.line()
+    .x(function(d) { return x(d.timeA); })
+    .y(function(d) { return y(d.gZ); });
+
+
+// append the svg obgect to the body of the page
+// appends a 'group' element to 'svg'
+// moves the 'group' element to the top left margin
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.csv("raw_gyro.csv", function(error, data) {
+  if (error) throw error;
+
+  // format the data TimeA = time, gX ,gY ,gZ
+  data.forEach(function(d) {
+      d.timeA = +d.timeA;
+      d.gX = +d.gX;
+      d.gY = +d.gY;
+      d.gZ = +d.gZ
+  });
+
+  // Scale the range of the data
+  x.domain([0, d3.max(data, function(d) { return d.timeA; })]);
+
+
+  // Add the valueline path. gX
+  svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .attr("d", valueline);
+
+  //path 2 gY
+  svg.append("path")
+      .data([data])
+      .attr("class", "line2")
+      .attr("d", valueline2);
+
+  //path 3 gZ
+  svg.append("path")
+      .data([data])
+      .attr("class", "line3")
+      .attr("d", valueline3);
+
+  // Add the X Axis
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x))
+      .append("text")
+         .attr("x", 1010)
+         .attr("y", -20)
+         .attr("dy", "0.71em")
+         .attr("fill", "#000")
+         .text("sec");
+
+  // Add the Y Axis
+  svg.append("g")
+        .attr("transform", "translate(" + x(0) + ",0)")
+        .call(d3.axisLeft(y))
+//label gX line
+  svg.append("line")
+      .style("stroke","red")
+      .style("stroke-width","2px")
+      .attr("x1", 900)
+      .attr("y1", 20)
+      .attr("x2", 920)
+      .attr("y2", 20);
+//label gY line
+  svg.append("line")
+      .style("stroke","#000")
+      .style("stroke-width","2px")
+      .attr("x1", 900)
+      .attr("y1", 40)
+      .attr("x2", 920)
+      .attr("y2", 40);
+
+//label gZ line
+  svg.append("line")
+      .style("stroke","green")
+      .style("stroke-width","2px")
+      .attr("x1", 900)
+      .attr("y1", 60)
+      .attr("x2", 920)
+      .attr("y2", 60);
+
+//label gx
+  svg.append("text")
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .attr("x", 930)
+      .attr("y", 12)
+      .text("gX");
+
+//label gY
+  svg.append("text")
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .attr("x", 930)
+      .attr("y", 32)
+      .text("gY");
+
+//label gZ
+  svg.append("text")
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .attr("x", 930)
+      .attr("y", 52)
+      .text("gZ");
+
+
+});
+
+</script>
+</body>
